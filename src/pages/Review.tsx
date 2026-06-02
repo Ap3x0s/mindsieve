@@ -4,6 +4,8 @@ import { RotateCcw, CheckCircle, ChevronRight, BrainCircuit, BarChart3, SkipForw
 import { useApp } from '../context/AppContext'
 import { useRetention } from '../hooks/useRetention'
 import { ReviewCardSkeleton } from '../components/LoadingSkeleton'
+import SwipeableCard from '../components/SwipeableCard'
+import EmptyState from '../components/EmptyState'
 import type { SieveItem } from '../types'
 
 export default function Review() {
@@ -73,27 +75,32 @@ export default function Review() {
 
   if (dueItems.length === 0) {
     return (
-      <div className="px-4 sm:px-6 py-6 max-w-2xl mx-auto text-center">
-        <div className="w-16 h-16 rounded-2xl bg-[var(--color-surface-700)] flex items-center justify-center mx-auto mb-4">
-          <CheckCircle className="w-8 h-8 text-[var(--color-success)]" />
+      <div className="px-4 sm:px-6 py-6 max-w-2xl mx-auto">
+        <div className="flex items-center justify-between mb-6">
+          <h1 className="text-xl font-semibold text-[var(--color-text-primary)]">Review</h1>
         </div>
-        <h2 className="text-lg font-semibold text-[var(--color-text-primary)] mb-1">All caught up!</h2>
-        <p className="text-sm text-[var(--color-text-muted)] mb-4">No items due for review.</p>
-        <button onClick={() => navigate('/')} className="text-[var(--color-accent)] hover:underline cursor-pointer">Back to Dashboard</button>
+        <EmptyState
+          icon={<CheckCircle className="w-8 h-8 text-[var(--color-success)]" />}
+          title="All caught up!"
+          description="No items due for review. Come back later."
+          action={{ label: 'Back to Dashboard', onClick: () => navigate('/') }}
+        />
       </div>
     )
   }
 
   if (currentIndex >= dueItems.length) {
     return (
-      <div className="px-4 sm:px-6 py-6 max-w-2xl mx-auto text-center">
-        <div className="w-16 h-16 rounded-2xl bg-[var(--color-success)]/10 flex items-center justify-center mx-auto mb-4">
-          <BrainCircuit className="w-8 h-8 text-[var(--color-success)]" />
+      <div className="px-4 sm:px-6 py-6 max-w-2xl mx-auto">
+        <div className="flex items-center justify-between mb-6">
+          <h1 className="text-xl font-semibold text-[var(--color-text-primary)]">Review</h1>
         </div>
-        <h2 className="text-lg font-semibold text-[var(--color-text-primary)] mb-1">Review Complete!</h2>
-        <p className="text-sm text-[var(--color-text-muted)] mb-1">You reviewed {dueItems.length} item{dueItems.length > 1 ? 's' : ''}.</p>
-        <p className="text-xs text-[var(--color-text-muted)] mb-4">+15 XP per item earned.</p>
-        <button onClick={() => navigate('/')} className="text-[var(--color-accent)] hover:underline cursor-pointer">Done</button>
+        <EmptyState
+          icon={<BrainCircuit className="w-8 h-8 text-[var(--color-success)]" />}
+          title="Review Complete!"
+          description={`You reviewed ${dueItems.length} item${dueItems.length > 1 ? 's' : ''}. +15 XP per item earned.`}
+          action={{ label: 'Done', onClick: () => navigate('/') }}
+        />
       </div>
     )
   }
@@ -146,7 +153,8 @@ function ReviewCard({ item, showAnswer, onReveal, onGrade, onSkip, miniQuiz, qui
   miniQuiz: typeof item.quiz; quizAnswers: Record<number, number>; setQuizAnswers: (v: Record<number, number>) => void; quizSubmitted: boolean
 }) {
   return (
-    <div className="p-6 rounded-2xl border border-[var(--color-border)] bg-[var(--color-card-bg)]">
+    <SwipeableCard onSwipeLeft={onSkip}>
+      <div className="p-6 rounded-2xl border border-[var(--color-border)] bg-[var(--color-card-bg)]">
       <h3 className="text-base font-medium text-[var(--color-text-primary)] mb-4">{item.title}</h3>
 
       {!showAnswer ? (
@@ -225,5 +233,6 @@ function ReviewCard({ item, showAnswer, onReveal, onGrade, onSkip, miniQuiz, qui
         </div>
       )}
     </div>
+    </SwipeableCard>
   )
 }
