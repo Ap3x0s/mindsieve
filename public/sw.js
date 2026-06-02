@@ -61,6 +61,6 @@ self.addEventListener('fetch', (event) => {
 
   // Default — network with cache fallback
   event.respondWith(
-    fetch(request).catch(() => caches.match(request))
+    fetch(request).catch(() => caches.match(request)).then(r => r || new Response('', { status: 503 }))
   )
 })
