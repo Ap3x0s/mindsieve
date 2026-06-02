@@ -25,6 +25,7 @@ export default function Settings() {
   const [saved, setSaved] = useState(false)
   const [testing, setTesting] = useState(false)
   const [testResult, setTestResult] = useState<'ok' | 'fail' | null>(null)
+  const [testError, setTestError] = useState('')
   const [showProviderList, setShowProviderList] = useState(false)
   const [focusedIndex, setFocusedIndex] = useState(-1)
   const providerRef = useRef<HTMLDivElement>(null)
@@ -102,8 +103,10 @@ export default function Settings() {
     if (!endpoint || !currentModel) return
     setTesting(true)
     setTestResult(null)
-    const ok = await testConnection(buildConfig())
-    setTestResult(ok ? 'ok' : 'fail')
+    setTestError('')
+    const result = await testConnection(buildConfig())
+    setTestResult(result.ok ? 'ok' : 'fail')
+    if (!result.ok && result.error) setTestError(result.error)
     setTesting(false)
   }
 
@@ -318,9 +321,14 @@ export default function Settings() {
               </span>
             )}
             {testResult === 'fail' && (
-              <span className="flex items-center gap-1 text-xs text-danger">
-                <XCircle className="w-3 h-3" /> Connection failed
-              </span>
+              <div className="flex flex-col gap-1">
+                <span className="flex items-center gap-1 text-xs text-danger">
+                  <XCircle className="w-3 h-3" /> Connection failed
+                </span>
+                {testError && (
+                  <span className="text-[10px] text-danger/70 font-mono break-all">{testError}</span>
+                )}
+              </div>
             )}
 
             <button onClick={handleClear}
