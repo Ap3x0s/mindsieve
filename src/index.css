@@ -1,0 +1,76 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-surface-900: #0B0F19;
+  --color-surface-800: #121726;
+  --color-surface-700: #1A2235;
+  --color-surface-600: #232E44;
+  --color-surface-500: #2D3A52;
+  --color-accent: #6366F1;
+  --color-accent-hover: #5558E6;
+  --color-success: #10B981;
+  --color-success-light: #D1FAE5;
+  --color-warning: #F59E0B;
+  --color-danger: #EF4444;
+  --color-text-primary: #F1F5F9;
+  --color-text-secondary: #94A3B8;
+  --color-text-muted: #64748B;
+  --color-border: #2D3A52;
+  --color-card-bg: #121726;
+}
+
+.light {
+  --color-surface-900: #FFFFFF;
+  --color-surface-800: #F8FAFC;
+  --color-surface-700: #F1F5F9;
+  --color-surface-600: #E2E8F0;
+  --color-surface-500: #CBD5E1;
+  --color-accent: #6366F1;
+  --color-accent-hover: #5558E6;
+  --color-success: #10B981;
+  --color-success-light: #D1FAE5;
+  --color-warning: #F59E0B;
+  --color-text-primary: #0F172A;
+  --color-text-secondary: #475569;
+  --color-text-muted: #94A3B8;
+  --color-border: #E2E8F0;
+  --color-card-bg: #FFFFFF;
+  --color-danger: #EF4444;
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+@keyframes confetti-fall {
+  0% { transform: translateY(-10px) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+}
+
+.confetti-piece {
+  animation: confetti-fall 3s ease-in-out forwards;
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.4s ease-out forwards;
+}
+
+.animate-fade-in-up:nth-child(2) { animation-delay: 0.1s; }
+.animate-fade-in-up:nth-child(3) { animation-delay: 0.2s; }
+.animate-fade-in-up:nth-child(4) { animation-delay: 0.3s; }
+.animate-fade-in-up:nth-child(5) { animation-delay: 0.4s; }
+.animate-fade-in-up:nth-child(6) { animation-delay: 0.5s; }
+.animate-fade-in-up:nth-child(7) { animation-delay: 0.6s; }
+.animate-fade-in-up:nth-child(8) { animation-delay: 0.7s; }
+.animate-fade-in-up:nth-child(9) { animation-delay: 0.8s; }
+.animate-fade-in-up:nth-child(10) { animation-delay: 0.9s; }

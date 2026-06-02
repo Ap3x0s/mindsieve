@@ -1,0 +1,52 @@
+# --- Node ---
+node_modules
+server/node_modules
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# --- Build output ---
+dist
+dist-ssr
+server/dist
+
+# --- Environment & secrets ---
+.env
+.env.*
+!.env.example
+server/.env
+
+# --- Database (SQLite) ---
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+
+# --- Runtime ---
+logs
+*.log
+*.pid
+*.seed
+
+# --- OS ---
+.DS_Store
+Thumbs.db
+ehthumbs.db
+
+# --- Editor ---
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json.example
+.idea
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+*.swp
+
+# --- Misc ---
+*.local
+*.tsbuildinfo
