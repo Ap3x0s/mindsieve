@@ -8,6 +8,7 @@ import questsRouter from './routes/quests.js'
 import migrateRouter from './routes/migrate.js'
 import reviewsRouter from './routes/reviews.js'
 import authRouter from './routes/auth.js'
+import aiProxyRouter from './routes/ai-proxy.js'
 
 const app = express()
 const PORT = parseInt(process.env.PORT || '3001', 10)
@@ -15,6 +16,7 @@ const PORT = parseInt(process.env.PORT || '3001', 10)
 app.use(cors({ origin: process.env.CORS_ORIGIN || 'http://localhost:5173' }))
 app.use(express.json({ limit: '5mb' }))
 
+app.use('/api/ai-proxy', aiProxyRouter)
 app.use('/api/items', itemsRouter)
 app.use('/api/user', userRouter)
 app.use('/api/tags', tagsRouter)
