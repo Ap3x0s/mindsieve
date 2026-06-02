@@ -63,7 +63,7 @@ export const PROVIDER_PRESETS: Record<AIProvider, ProviderPreset> = {
   google: {
     label: 'Google Gemini',
     endpoint: 'https://generativelanguage.googleapis.com/v1beta/models',
-    models: ['gemini-2.5-flash', 'gemini-2.5-pro', 'gemini-3.1-flash-lite', 'gemini-3.5-flash'],
+    models: ['gemini-2.5-flash', 'gemini-2.5-pro', 'gemini-2.0-flash', 'gemini-2.0-flash-lite'],
     needsKey: true,
     keyLabel: 'Gemini API Key',
     keyPlaceholder: 'AIza...',
@@ -252,11 +252,11 @@ export async function callOmniRoute(text: string, cfg: OmniRouteConfig): Promise
   }
 }
 
-export async function testConnection(cfg: OmniRouteConfig): Promise<boolean> {
+export async function testConnection(cfg: OmniRouteConfig): Promise<{ ok: boolean; error?: string }> {
   try {
     await callOmniRoute('Test. Respond with a simple JSON with title "ok", summary ["ok"], actionItems ["ok"], quiz [], tags ["test"].', cfg)
-    return true
-  } catch {
-    return false
+    return { ok: true }
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : 'Unknown error' }
   }
 }
