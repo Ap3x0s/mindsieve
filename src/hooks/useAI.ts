@@ -3,6 +3,8 @@ import { getConfig, callOmniRoute, type AIResult } from '../lib/omniroute'
 import { processWithAI as mockAI } from '../lib/mockAI'
 import { extractUrlMeta } from '../lib/extractUrl'
 
+export type ProcessingStep = 'idle' | 'extracting' | 'processing' | 'parsing' | 'complete'
+
 export interface ProcessResult extends AIResult {
   sourceType: 'link' | 'text'
   domain: string
@@ -18,9 +20,11 @@ export interface ProcessResult extends AIResult {
 
 export function useAI() {
   const [loading, setLoading] = useState(false)
+  const [step, setStep] = useState<ProcessingStep>('idle')
 
   const process = useCallback(async (input: string): Promise<ProcessResult> => {
     setLoading(true)
+    setStep('idle')
     try {
       const isLink = /^https?:\/\//.test(input.trim())
       const rawUrl = isLink ? input.match(/https?:\/\/[^\s]+/)?.[0] || input.trim() : ''
@@ -30,6 +34,7 @@ export function useAI() {
 
       let image = ''
       if (isLink) {
+        setStep('extracting')
         const meta = await extractUrlMeta(rawUrl)
         if (meta) {
           text = meta.cleanText || input
@@ -41,6 +46,7 @@ export function useAI() {
         }
       }
 
+      setStep('processing')
       const cfg = getConfig()
       let result: AIResult
 
@@ -54,7 +60,9 @@ export function useAI() {
         result = await mockAI(text)
       }
 
+      setStep('parsing')
       const wordCount = text.split(/\s+/).length
+      setStep('complete')
       return {
         ...result,
         tags: result.tags || [],
@@ -70,8 +78,9 @@ export function useAI() {
       }
     } finally {
       setLoading(false)
+      setStep('idle')
     }
   }, [])
 
-  return { process, loading }
+  return { process, loading, step }
 }

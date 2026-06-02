@@ -1,16 +1,24 @@
 import { useState } from 'react'
-import { Loader2, Sparkles, Link, FileText } from 'lucide-react'
+import { Loader2, Sparkles, Link, FileText, Globe, Brain, CheckCircle } from 'lucide-react'
 import { useApp } from '../context/AppContext'
-import { useAI } from '../hooks/useAI'
+import { useAI, type ProcessingStep } from '../hooks/useAI'
 import toast from 'react-hot-toast'
 
 interface QuickInputProps {
   onProcessing: (v: boolean) => void
 }
 
+const STEP_CONFIG: Record<ProcessingStep, { label: string; icon: typeof Loader2 }> = {
+  idle: { label: '', icon: Loader2 },
+  extracting: { label: 'Extracting URL...', icon: Globe },
+  processing: { label: 'AI processing...', icon: Brain },
+  parsing: { label: 'Parsing results...', icon: Loader2 },
+  complete: { label: 'Done', icon: CheckCircle },
+}
+
 export default function QuickInput({ onProcessing }: QuickInputProps) {
   const [text, setText] = useState('')
-  const { process, loading } = useAI()
+  const { process, loading, step } = useAI()
   const { addItem } = useApp()
 
   const handleProcess = async () => {
@@ -60,9 +68,18 @@ export default function QuickInput({ onProcessing }: QuickInputProps) {
             ) : (
               <Sparkles className="w-4 h-4" />
             )}
-            {loading ? 'Sieving...' : 'Process'}
+            {loading ? (STEP_CONFIG[step]?.label || 'Sieving...') : 'Process'}
           </button>
         </div>
+        {loading && step !== 'idle' && step !== 'complete' && (
+          <div className="mt-2 flex items-center gap-2">
+            <div className="flex-1 h-1 rounded-full bg-[var(--color-surface-700)] overflow-hidden">
+              <div className="h-full rounded-full bg-[var(--color-accent)] transition-all duration-500"
+                style={{ width: step === 'extracting' ? '33%' : step === 'processing' ? '66%' : step === 'parsing' ? '90%' : '0%' }} />
+            </div>
+            <span className="text-[10px] text-[var(--color-text-muted)] whitespace-nowrap">{STEP_CONFIG[step]?.label}</span>
+          </div>
+        )}
       </div>
     </div>
   )
