@@ -63,7 +63,7 @@ export const PROVIDER_PRESETS: Record<AIProvider, ProviderPreset> = {
   google: {
     label: 'Google Gemini',
     endpoint: 'https://generativelanguage.googleapis.com/v1beta/models',
-    models: ['gemini-2.5-flash', 'gemini-2.5-pro', 'gemini-2.0-flash', 'gemini-2.0-flash-lite'],
+    models: ['gemini-2.5-flash', 'gemini-2.5-pro', 'gemini-2.0-flash', 'gemini-2.0-flash-lite', 'gemini-3.1-flash-lite', 'gemini-3.5-flash'],
     needsKey: true,
     keyLabel: 'Gemini API Key',
     keyPlaceholder: 'AIza...',
