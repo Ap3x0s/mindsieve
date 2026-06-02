@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from 'react'
-import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
-import { Loader2, AlertTriangle } from 'lucide-react'
+import { Loader2, AlertTriangle, Plus } from 'lucide-react'
 import { useApp } from './context/AppContext'
 import { storageKey } from './lib/constants'
 import Header from './components/Header'
@@ -99,11 +99,15 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
 
 function AppContent() {
   const { state, loading, migrating, error } = useApp()
+  const location = useLocation()
+  const navigate = useNavigate()
   const [prevLevel, setPrevLevel] = useState(state.user.level)
   const [showLevelUp, setShowLevelUp] = useState(false)
   const [showTutorial, setShowTutorial] = useState(() => !localStorage.getItem(storageKey('tutorial_done')))
   const [showPalette, setShowPalette] = useState(false)
   const [showSetupWizard, setShowSetupWizard] = useState(() => !getConfig())
+
+  useEffect(() => { window.scrollTo(0, 0) }, [location.pathname])
 
   useEffect(() => {
     if (state.user.level > prevLevel) {
@@ -161,6 +165,15 @@ function AppContent() {
         } />
       </Routes>
       <BottomNav />
+      {location.pathname !== '/auth' && (
+        <button
+          onClick={() => navigate('/')}
+          className="fixed bottom-20 right-4 z-50 w-12 h-12 bg-[var(--color-accent)] rounded-full shadow-lg flex items-center justify-center hover:bg-[var(--color-accent-hover)] transition-colors cursor-pointer sm:hidden"
+          title="Quick add"
+        >
+          <Plus className="w-6 h-6 text-white" />
+        </button>
+      )}
       {showLevelUp && (
         <LevelUpModal
           level={state.user.level}
