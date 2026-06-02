@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Search, X, Trash2, Archive, Star, Upload, Sparkles } from 'lucide-react'
+import toast from 'react-hot-toast'
 import { useApp } from '../context/AppContext'
 import { useFilteredItems } from '../hooks/useFilteredItems'
 import ContentCard from '../components/ContentCard'
@@ -8,6 +9,7 @@ import SwipeableCard from '../components/SwipeableCard'
 import ImportModal from '../components/ImportModal'
 import ConfirmDialog from '../components/ConfirmDialog'
 import LoadingSkeleton, { FilterBarSkeleton } from '../components/LoadingSkeleton'
+import EmptyState from '../components/EmptyState'
 import { extractKeywords } from '../lib/mockAI'
 import { getConfig, callOmniRoute } from '../lib/omniroute'
 import { TAG_COLORS } from '../lib/constants'
@@ -30,12 +32,15 @@ export default function Library() {
   }
 
   const bulkAction = (action: 'archive' | 'delete' | 'favorite') => {
+    const count = selectedItems.size
     selectedItems.forEach(id => {
       if (action === 'archive') toggleArchive(id)
       if (action === 'delete') deleteItem(id)
       if (action === 'favorite') toggleFavorite(id)
     })
     setSelectedItems(new Set())
+    const label = action === 'archive' ? 'Archived' : action === 'delete' ? 'Deleted' : 'Favorited'
+    toast.success(`${label} ${count} item${count > 1 ? 's' : ''}`)
   }
 
   return (
@@ -140,10 +145,11 @@ export default function Library() {
       ) : (
       <div className="space-y-2">
         {filtered.length === 0 ? (
-          <div className="py-16 text-center">
-            <p className="text-sm text-[var(--color-text-muted)]">No items match your filters.</p>
-            <p className="text-xs text-[var(--color-text-muted)] mt-1 opacity-60">Try changing the search query, status filter, or clearing tags.</p>
-          </div>
+          <EmptyState
+            icon={<Search className="w-8 h-8 text-[var(--color-text-muted)]" />}
+            title="No items match your filters"
+            description="Try changing the search query, status filter, or clearing tags."
+          />
         ) : (
           filtered.map(item => (
             <SwipeableCard key={item.id} onSwipeLeft={() => toggleArchive(item.id)} onSwipeRight={() => toggleFavorite(item.id)}>
