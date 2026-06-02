@@ -81,8 +81,8 @@ export const PROVIDER_PRESETS: Record<AIProvider, ProviderPreset> = {
     label: 'Custom',
     endpoint: '',
     models: [],
-    needsKey: false,
-    keyLabel: 'API Key (optional)',
+    needsKey: true,
+    keyLabel: 'API Key',
     keyPlaceholder: 'sk-...',
   },
 }
@@ -166,26 +166,37 @@ function parseAIResult(content: string, text: string): AIResult {
   }
 }
 
+async function proxyRequest(cfg: OmniRouteConfig, headers: Record<string, string>, body: unknown): Promise<any> {
+  const res = await fetch('/api/ai-proxy', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ url: cfg.endpoint, headers, body }),
+  })
+  if (!res.ok) throw new Error(`Connection to proxy failed (${res.status})`)
+  const result = await res.json()
+  if (!result.ok) throw new Error(result.error || 'Connection failed')
+  if (result.status >= 400) {
+    const detail = typeof result.data === 'object' ? JSON.stringify(result.data).slice(0, 200) : String(result.data || '')
+    throw new Error(`API error ${result.status}: ${detail}`)
+  }
+  return result.data
+}
+
 async function callOpenAI(text: string, cfg: OmniRouteConfig): Promise<AIResult> {
   const systemPrompt = getSystemPrompt()
-  const res = await fetch(cfg.endpoint, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      ...(cfg.apiKey ? { Authorization: `Bearer ${cfg.apiKey}` } : {}),
-    },
-    body: JSON.stringify({
-      model: cfg.model,
-      messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: `Process this content and return the structured response:\n\n${text}` },
-      ],
-      temperature: 0.3,
-      max_tokens: 2000,
-    }),
+  const endpoint = cfg.endpoint.includes('/chat/completions') ? cfg.endpoint : cfg.endpoint.replace(/\/?$/, '/chat/completions')
+  const data = await proxyRequest({ ...cfg, endpoint }, {
+    'Content-Type': 'application/json',
+    ...(cfg.apiKey ? { Authorization: `Bearer ${cfg.apiKey}` } : {}),
+  }, {
+    model: cfg.model,
+    messages: [
+      { role: 'system', content: systemPrompt },
+      { role: 'user', content: `Process this content and return the structured response:\n\n${text}` },
+    ],
+    temperature: 0.3,
+    max_tokens: 2000,
   })
-  if (!res.ok) throw new Error(`API error ${res.status}: ${(await res.text().catch(() => '')).slice(0, 200)}`)
-  const data = await res.json()
   const content = data.choices?.[0]?.message?.content
   if (!content) throw new Error('No content in response')
   return parseAIResult(content, text)
@@ -193,23 +204,17 @@ async function callOpenAI(text: string, cfg: OmniRouteConfig): Promise<AIResult>
 
 async function callAnthropic(text: string, cfg: OmniRouteConfig): Promise<AIResult> {
   const systemPrompt = getSystemPrompt()
-  const res = await fetch(cfg.endpoint, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': cfg.apiKey,
-      'anthropic-version': '2023-06-01',
-    },
-    body: JSON.stringify({
-      model: cfg.model,
-      system: systemPrompt,
-      messages: [{ role: 'user', content: `Process this content and return the structured response:\n\n${text}` }],
-      temperature: 0.3,
-      max_tokens: 2000,
-    }),
+  const data = await proxyRequest(cfg, {
+    'Content-Type': 'application/json',
+    'x-api-key': cfg.apiKey,
+    'anthropic-version': '2023-06-01',
+  }, {
+    model: cfg.model,
+    system: systemPrompt,
+    messages: [{ role: 'user', content: `Process this content and return the structured response:\n\n${text}` }],
+    temperature: 0.3,
+    max_tokens: 2000,
   })
-  if (!res.ok) throw new Error(`Anthropic error ${res.status}: ${(await res.text().catch(() => '')).slice(0, 200)}`)
-  const data = await res.json()
   const content = data.content?.[0]?.text
   if (!content) throw new Error('No content in response')
   return parseAIResult(content, text)
@@ -218,17 +223,13 @@ async function callAnthropic(text: string, cfg: OmniRouteConfig): Promise<AIResu
 async function callGoogle(text: string, cfg: OmniRouteConfig): Promise<AIResult> {
   const systemPrompt = getSystemPrompt()
   const url = `${cfg.endpoint}/${cfg.model}:generateContent${cfg.apiKey ? `?key=${cfg.apiKey}` : ''}`
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      contents: [{ parts: [{ text: `Process this content and return the structured response:\n\n${text}` }] }],
-      systemInstruction: { parts: [{ text: systemPrompt }] },
-      generationConfig: { temperature: 0.3, maxOutputTokens: 2000 },
-    }),
+  const data = await proxyRequest({ ...cfg, endpoint: url }, {
+    'Content-Type': 'application/json',
+  }, {
+    contents: [{ parts: [{ text: `Process this content and return the structured response:\n\n${text}` }] }],
+    systemInstruction: { parts: [{ text: systemPrompt }] },
+    generationConfig: { temperature: 0.3, maxOutputTokens: 2000 },
   })
-  if (!res.ok) throw new Error(`Gemini error ${res.status}: ${(await res.text().catch(() => '')).slice(0, 200)}`)
-  const data = await res.json()
   const content = data.candidates?.[0]?.content?.parts?.[0]?.text
   if (!content) throw new Error('No content in response')
   return parseAIResult(content, text)
