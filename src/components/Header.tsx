@@ -1,7 +1,8 @@
 import { useState, useRef, useEffect } from 'react'
-import { Bot, Brain, Palette, Zap, LayoutDashboard, Library, BarChart3, RotateCcw, LogOut, ChevronDown, User, Check } from 'lucide-react'
+import { Bot, Palette, Zap, LayoutDashboard, Library, BarChart3, RotateCcw, LogOut, ChevronDown, User, Check } from 'lucide-react'
 import { useApp } from '../context/AppContext'
 import { useLocation, useNavigate } from 'react-router-dom'
+import Logo from './Logo'
 import { getConfig, PROVIDER_PRESETS } from '../lib/omniroute'
 import { getStoredUser, logout } from '../lib/auth'
 import { PRESETS } from '../lib/themes'
@@ -59,9 +60,7 @@ export default function Header({ onOpenPalette }: HeaderProps) {
       <header className="flex items-center justify-between px-4 sm:px-6 py-3 border-b border-[var(--color-border)] bg-[var(--color-surface-900)]">
         <div className="flex items-center gap-6">
           <button onClick={() => navigate('/')} className="flex items-center gap-2 cursor-pointer">
-            <div className="w-8 h-8 rounded-lg bg-[var(--color-accent)] flex items-center justify-center">
-              <Brain className="w-4 h-4 text-white" />
-            </div>
+            <Logo />
             <span className="text-base font-semibold text-[var(--color-text-primary)] tracking-tight hidden sm:inline">
               MindSieve
             </span>
@@ -136,7 +135,7 @@ export default function Header({ onOpenPalette }: HeaderProps) {
                   className="w-full flex items-center gap-2.5 px-3 py-2 text-xs text-[var(--color-accent)] hover:bg-[var(--color-surface-700)] transition-colors cursor-pointer"
                 >
                   <Palette className="w-3.5 h-3.5" />
-                  Open Theme Editor
+                  Theme Editor
                 </button>
               </div>
             )}
