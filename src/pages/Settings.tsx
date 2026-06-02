@@ -251,6 +251,23 @@ export default function Settings() {
 
           {renderModelSection()}
 
+          {provider === 'custom' && (
+            <div>
+              <label className="flex items-center gap-1.5 text-xs text-[var(--color-text-muted)] mb-1.5">
+                <Code className="w-3 h-3" /> API Format
+              </label>
+              <select
+                value={customFormat}
+                onChange={e => setCustomFormat(e.target.value as ApiFormat)}
+                className="w-full px-4 py-2.5 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-800)] text-sm text-[var(--color-text-primary)] outline-none focus:border-[var(--color-accent)] appearance-none cursor-pointer"
+              >
+                <option value="openai">OpenAI-compatible</option>
+                <option value="anthropic">Anthropic Claude</option>
+                <option value="google">Google Gemini</option>
+              </select>
+            </div>
+          )}
+
           <div>
             <label className="flex items-center gap-1.5 text-xs text-[var(--color-text-muted)] mb-1.5">
               <Code className="w-3 h-3" /> API Endpoint
