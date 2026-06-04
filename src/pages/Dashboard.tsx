@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { FileText, Sparkles } from 'lucide-react'
+import { FileText } from 'lucide-react'
 import { useApp } from '../context/AppContext'
 import QuickInput from '../components/QuickInput'
 import ContentCard from '../components/ContentCard'
